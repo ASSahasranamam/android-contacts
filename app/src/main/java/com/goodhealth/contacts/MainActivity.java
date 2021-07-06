@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
                 ContactModel updateModel = new ContactModel();
                 updateModel.setName(name);
                 updateModel.setId(deleteID);
-                updateModel.setNumber(number);
+//                updateModel.setNumber(number);
                 updateModel.setEmail(email);
 
                 db.collection("testPhoneBook").document(deleteID).set(updateModel);
@@ -431,18 +431,18 @@ public class MainActivity extends AppCompatActivity {
                     String deleteID = c.getString(c.getColumnIndex(ContactsContract.RawContacts._ID));
                     Log.d("TAG", "onChange: ");
 
-                    Cursor updateCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-                            ,
-                            null,
-                            "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + deleteID + ")",
-                            null,
-                            null);
-                    String number = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                    Cursor updateCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI
+//                            ,
+//                            null,
+//                            "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + deleteID + ")",
+//                            null,
+//                            null);
+//                    String number = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 //                String email = c.getString(c.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
                     ContactModel updateModel = new ContactModel();
                     updateModel.setName(name);
                     updateModel.setId(deleteID);
-                    updateModel.setNumber(number);
+//                    updateModel.setNumber(number);
 
 
                     Log.d("name >>", name + " // Modified // " + deleteID);
