@@ -2,7 +2,7 @@ package com.goodhealth.contacts;
 
 public class ContactModel {
 
-    private String name, number;
+    private String name, number, id, email;
 
     public String getName() {
         return name;
@@ -19,4 +19,21 @@ public class ContactModel {
     public void setNumber(String number) {
         this.number = number;
     }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
 }

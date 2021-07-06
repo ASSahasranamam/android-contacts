@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "994495293252",
+    "firebase_url": "https://adi-personal-test.firebaseio.com",
+    "project_id": "adi-personal-test",
+    "storage_bucket": "adi-personal-test.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:994495293252:android:016d1ce578cd0aa3fc1911",
+        "android_client_info": {
+          "package_name": "com.goodhealth.contacts"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "994495293252-ph2m1rvi081seucuoe9p06f639q9i2n2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCC0bCf1ZgaUCe5DvTYeZFpAqKH4x2rnv0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "994495293252-ph2m1rvi081seucuoe9p06f639q9i2n2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
