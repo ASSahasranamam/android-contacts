@@ -360,7 +360,6 @@ public class MainActivity extends AppCompatActivity {
     private class MyContentObserver extends ContentObserver {
 //        Uri Uriuri;
 
-
         public MyContentObserver(Handler h) {
             super(h);
 //            this.uri = uri;
@@ -382,17 +381,16 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onChange(boolean selfChange) {
-            this.onChange(selfChange,null);
+            this.onChange(selfChange);
         }
 
         @Override
         public void onChange(boolean selfChange, Uri uri) {
             Log.d(this.getClass().getSimpleName(), "A change has happened");
             super.onChange(selfChange);
-            final String ACCOUNT_TYPE = "com.android.account.youraccounttype";
             final String WHERE_Deleted = "( " + ContactsContract.RawContacts.DELETED + "= 1 )";
             final String WHERE_MODIFIED = "( " + ContactsContract.RawContacts.DIRTY + "= 1  AND " + ContactsContract.RawContacts.DELETED + "= 0 )";
-
+            Log.d(">> TAG >>", "onChange:"+ uri);
 //            testCustomFunc();
 
 
@@ -425,42 +423,49 @@ public class MainActivity extends AppCompatActivity {
 //
 
                 while(c.moveToNext()) {
-                    c.moveToFirst();
+//                    c.moveToFirst();
 //                String name=c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    String name = c.getString(c.getColumnIndex(ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY));
-                    String deleteID = c.getString(c.getColumnIndex(ContactsContract.RawContacts._ID));
-                    Log.d("TAG", "onChange: ");
-
-//                    Cursor updateCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI
-//                            ,
-//                            null,
-//                            "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + deleteID + ")",
-//                            null,
-//                            null);
-//                    String number = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                String email = c.getString(c.getColumnIndexOrThrow(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                    ContactModel updateModel = new ContactModel();
-                    updateModel.setName(name);
-                    updateModel.setId(deleteID);
-//                    updateModel.setNumber(number);
+                    String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+                    String deleteID = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
 
 
                     Log.d("name >>", name + " // Modified // " + deleteID);
-                    Log.d("DEL", "onChange:" + c.getString(c.getColumnIndex(ContactsContract.RawContacts.DELETED)));
 
-                    Log.d("TAG", "onChange: we Modifyin");
-                    db.collection("testPhoneBook").document(deleteID).set(updateModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("TAG", "DocumentSnapshot successfully Updated!");
-                        }
-                    })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("TAG", "Error deleting document", e);
-                                }
-                            });
+                    ContactModel updateModel = new ContactModel();
+                    updateModel.setName(name);
+
+                    Cursor phone_no = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + deleteID, null, null);
+                    while (phone_no.moveToNext()) {
+                       String phoneNumber = phone_no.getString(phone_no.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                        Log.d(" >> TAG >>", "VV anna code: " +  phoneNumber);
+
+                        updateModel.setId(deleteID);
+                        updateModel.setNumber(phoneNumber);
+
+                        db.collection("testPhoneBook").document(deleteID).set(updateModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d("TAG", "DocumentSnapshot successfully deleted!");
+                            }
+                        })
+                                .addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Log.w("TAG", "Error deleting document", e);
+                                    }
+                                });
+
+                    }
+
+
+
+                        //                updateModel.setNumber(number);
+
+                    phone_no.close();
+
+
+
+
                 }
 
             c.close();
