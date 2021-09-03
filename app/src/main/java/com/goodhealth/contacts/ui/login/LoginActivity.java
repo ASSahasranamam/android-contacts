@@ -120,6 +120,7 @@ private ActivityLoginBinding binding;
                 loginViewModel.login(usernameEditText.getText().toString(),
                         passwordEditText.getText().toString());
                 Intent intent = new Intent( LoginActivity.this, MainActivity.class);
+                intent.putExtra("username", usernameEditText.getText().toString());
                 startActivity(intent);
             }
         });

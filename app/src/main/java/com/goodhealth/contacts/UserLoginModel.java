@@ -2,9 +2,9 @@ package com.goodhealth.contacts;
 
 import java.util.ArrayList;
 
-public class ContactModel {
+public class UserLoginModel {
 
-    private String name, number, id, email;
+    private String name,  id, phNumber, password;
 
     private ArrayList<String> PhoneArray = new ArrayList<String>();
     private ArrayList<String> EmailArray = new ArrayList<String>();
@@ -17,7 +17,16 @@ public class ContactModel {
         EmailArray = emailArray;
     }
 
-    public String getName() {
+    public boolean register(String name, String number, String password)
+    {
+        return true;
+    };
+
+    public boolean Login( String number, String password) {
+        return true;
+    }
+
+        public String getName() {
         return name;
     }
 
@@ -25,21 +34,22 @@ public class ContactModel {
         this.name = name;
     }
 
-    public String getNumber() {
-        return number;
+    public String getPhNumber() {
+        return phNumber;
     }
 
-    public void setNumber(String number) {
-        this.number = number;
-    }
 
-    public String getEmail() {
-        return email;
+    public void setNumber(String phNumber) {
+        this.phNumber = phNumber;
     }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
+//
+//    public String getEmail() {
+//        return email;
+//    }
+//
+//    public void setEmail(String email) {
+//        this.email = email;
+//    }
 
     public String getId() {
         return id;
@@ -50,6 +60,3 @@ public class ContactModel {
     }
 
 }
-
-
-

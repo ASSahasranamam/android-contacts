@@ -77,10 +77,12 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    String sessionId = getIntent().getStringExtra("username");
     private ListView listView;
     private CustomAdapter customAdapter;
     public ArrayList<ContactModel> contactModelArrayList;
     private static final int PERMISSIONS_REQUEST_READ_CONTACTS = 100;
+
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Handler handler = new Handler();
@@ -96,8 +98,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+        Log.d(">>Tag >>", "session id" + sessionId);
         myRef = database.getReference();
+
         db.setFirestoreSettings(settings);
 //        db.disableNetwork()
 //                .addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -173,62 +178,68 @@ public class MainActivity extends AppCompatActivity {
                     contentObserver);
 
 
-            testCustomFunc();
-            Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+//            testCustomFunc();
 
 
-            while (phones.moveToNext()) {
-                String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                String contact_id = phones.getString(phones.getColumnIndex(ContactsContract.Data.CONTACT_ID.toString()));
-                String email = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS.toString()));
 
-                ContactModel contactModel = new ContactModel();
-                contactModel.setId(contact_id);
-                contactModel.setName(name);
-                contactModel.setNumber(phoneNumber);
-                contactModel.setEmail(email);
 
-                contactModelArrayList.add(contactModel);
-                Log.d("name>>", name + "  " + phoneNumber);
 //
-                db.collection("testPhoneBook").document(contact_id).set(contactModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(">> Firestore Insert", "DocumentSnapshot successfully written!");
-                    }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(">> Firestore Insert", "Error writing document", e);
-                            }
-                        });
-
-//                db.collection("testPhoneBook").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+//            Cursor phones = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, null, null, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
+//
+//
+//            while (phones.moveToNext()) {
+//                String name = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
+//                String phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+//                String contact_id = phones.getString(phones.getColumnIndex(ContactsContract.Data.CONTACT_ID.toString()));
+//                String email = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS.toString()));
+//
+//                ContactModel contactModel = new ContactModel();
+//                contactModel.setId(contact_id);
+//                contactModel.setName(name);
+//                contactModel.setNumber(phoneNumber);
+//                contactModel.setEmail(email);
+//
+//                contactModelArrayList.add(contactModel);
+////                Log.d("name>>", name + "  " + phoneNumber);
+////
+//                db.collection("testPhoneBook").document(contact_id).set(contactModel).addOnSuccessListener(new OnSuccessListener<Void>() {
 //                    @Override
-//                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-//                        if (task.isSuccessful()) {
-//                            int count = 0;
-//                            for (DocumentSnapshot document : task.getResult()) {
-//                                count++;
-//                            }
-//                            Log.d("TAG", count + "");
-//                        } else {
-//                            Log.d("Error Tag", "Error getting documents: ", task.getException());
-//                        }
+//                    public void onSuccess(Void aVoid) {
+//                        Log.d(">> Firestore Insert", "DocumentSnapshot successfully written!");
 //                    }
-//                });
-//                myRef.child("users").child(name);
-//                myRef.child("users").child(name).child("phoneNumber").setValue(phoneNumber);
-//                myRef.child("users").child(name).child("contactid").setValue(contact_id);
-//                myRef.child("users").child(name).child("contactid").setValue(contact_id);
-//                myRef.child("users").child(name).child("contactid").setValue(contact_id);
+//                })
+//                        .addOnFailureListener(new OnFailureListener() {
+//                            @Override
+//                            public void onFailure(@NonNull Exception e) {
+//                                Log.w(">> Firestore Insert", "Error writing document", e);
+//                            }
+//                        });
+//
+////                db.collection("testPhoneBook").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+////                    @Override
+////                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+////                        if (task.isSuccessful()) {
+////                            int count = 0;
+////                            for (DocumentSnapshot document : task.getResult()) {
+////                                count++;
+////                            }
+////                            Log.d("TAG", count + "");
+////                        } else {
+////                            Log.d("Error Tag", "Error getting documents: ", task.getException());
+////                        }
+////                    }
+////                });
+////                myRef.child("users").child(name);
+////                myRef.child("users").child(name).child("phoneNumber").setValue(phoneNumber);
+////                myRef.child("users").child(name).child("contactid").setValue(contact_id);
+////                myRef.child("users").child(name).child("contactid").setValue(contact_id);
+////                myRef.child("users").child(name).child("contactid").setValue(contact_id);
+//
+//
+//            }
+//            phones.close();
 
-
-            }
-            phones.close();
-
+              getClubbedContacts();
             customAdapter = new CustomAdapter(this, contactModelArrayList);
             listView.setAdapter(customAdapter);
             printOutput();
@@ -237,6 +248,97 @@ public class MainActivity extends AppCompatActivity {
     }
     }
 
+
+
+
+
+    private void getClubbedContacts(){
+        Cursor contactCursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
+
+
+        while(contactCursor.moveToNext()){
+
+            String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+            String contact_id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID.toString()));
+
+            final String FIND_pHONES_FOR_ID = "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" +
+                    contact_id + ")";
+
+            final String FIND_EMAILS_FOR_ID = "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" +
+                    contact_id + ")";
+
+
+            Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id);
+            Cursor getAllNums = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, FIND_pHONES_FOR_ID, null, null);
+
+            ArrayList<String> PhoneNums = new ArrayList<String>();
+            ArrayList<String> EmailList = new ArrayList<String>();
+
+            String displayNumber = "";
+            while(getAllNums.moveToNext()){
+
+                String phoneNumber = getAllNums.getString(getAllNums.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id + " //"+ phoneNumber);
+                PhoneNums.add(phoneNumber);
+                displayNumber = displayNumber + phoneNumber + " \n ";
+
+            }
+            getAllNums.close();
+
+            Cursor getAllEmails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, FIND_EMAILS_FOR_ID, null, null);
+
+
+            while(getAllEmails.moveToNext()){
+
+                String EmailADdresses = getAllEmails.getString(getAllEmails.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
+                Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id + " //"+ EmailADdresses);
+                EmailList.add(EmailADdresses);
+//                displayNumber = displayNumber + phoneNumber + " \n ";
+
+            }
+
+            Log.d(">>Tag>>", name + "// NewTest //" + contact_id + "// Phonenums finally" + PhoneNums+ "// Phonenums finally" + PhoneNums);
+            getAllEmails.close();
+
+
+
+            ContactModel contactModel = new ContactModel();
+            contactModel.setId(contact_id);
+            contactModel.setName(name);
+            contactModel.setNumber(displayNumber);
+            contactModel.setPhoneArray(PhoneNums);
+
+            contactModel.setEmailArray(EmailList);
+
+
+            contactModelArrayList.add(contactModel);
+
+
+
+            db.collection("todayTesting2").document(contact_id).set(contactModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Log.d(">> Firestore Insert", "DocumentSnapshot successfully written!");
+                }
+            })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(">> Firestore Insert", "Error writing document", e);
+                        }
+                    });
+
+
+        }
+
+
+        contactCursor.close();
+
+
+
+
+    }
 
     private  void printOutput(){
         db.collection("testPhoneBook").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -301,12 +403,12 @@ public class MainActivity extends AppCompatActivity {
                         null,
                         null);
                 String number = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                String email = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
+//                String email = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
                 ContactModel updateModel = new ContactModel();
                 updateModel.setName(name);
                 updateModel.setId(deleteID);
 //                updateModel.setNumber(number);
-                updateModel.setEmail(email);
+//                updateModel.setEmail(email);
 
                 db.collection("testPhoneBook").document(deleteID).set(updateModel);
 //                db.collection("testPhoneBook").document(deleteID).update("number",number);
