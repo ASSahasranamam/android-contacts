@@ -1,8 +1,10 @@
 package com.goodhealth.contacts;
 
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
@@ -173,7 +175,16 @@ public class MainActivity extends AppCompatActivity {
                 if(customAdapter == null){
                     customAdapter = new CustomAdapter(MainActivity.this, contactModelArrayList, mutualPhones);
 
-
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                    alertDialog.setTitle("Alert");
+                    alertDialog.setMessage("This is in getMutualContacts" + mutualPhones+ mutualPhones.size() );
+                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
 
                     listView.setAdapter(customAdapter);
                     customAdapter.notifyDataSetChanged();
