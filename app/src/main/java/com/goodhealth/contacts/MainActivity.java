@@ -25,6 +25,11 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.ContactsContract;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -55,6 +60,13 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -69,15 +81,21 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreSettings;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.SetOptions;
 import com.google.firebase.firestore.WriteBatch;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
-
-    String sessionId = getIntent().getStringExtra("username");
+    String username;
     private ListView listView;
     private CustomAdapter customAdapter;
     public ArrayList<ContactModel> contactModelArrayList;
@@ -93,6 +111,90 @@ public class MainActivity extends AppCompatActivity {
 
     private DatabaseReference myRef;
 
+
+
+    public ArrayList<String> allPhoneNumbers = new ArrayList<String>();
+    public  ArrayList<String> mutualPhones = new ArrayList<String>();
+
+
+
+    public void getAllMatchingContacts(String username) {
+//        String postUrl = "http://localhost:3000/users/mutualcontacts/";
+//
+//
+//
+//
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//
+//        JSONObject postData = new JSONObject();
+//        try {
+//            postData.put("username", username);
+//            postData.put("phoneNums", allPhoneNumbers);
+//
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
+//
+//        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, postUrl, postData, new Response.Listener<JSONObject>() {
+//            @Override
+//            public void onResponse(JSONObject response) {
+//                System.out.println(response);
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                error.printStackTrace();
+//            }
+//        });
+//
+//        requestQueue.add(jsonObjectRequest);
+
+        mutualContactsReq object = new mutualContactsReq();
+
+        object.setUsername(username);
+        object.setPhoneNums(allPhoneNumbers);
+
+        ApiInterface apiInterface = ApiClient.getClient().create(ApiInterface.class);
+        Call<mutualContactsres> response = apiInterface.getMutualContactsDocs(object);
+
+        response.enqueue(new Callback<mutualContactsres>() {
+            @Override
+            public void onResponse(Call<mutualContactsres> call, Response<mutualContactsres> response) {
+                mutualContactsres getbeanlist = response.body();
+
+                Log.w("TAG", "onResponse: Response Rec" +getbeanlist);
+
+                Log.w("tag", getbeanlist.getMutualDocs().toString());
+
+                mutualPhones.addAll(getbeanlist.getMutualDocs());
+
+                Log.i(">>", " MutualPh Size" + mutualPhones.size());
+
+                if(customAdapter == null){
+                    customAdapter = new CustomAdapter(MainActivity.this, contactModelArrayList, mutualPhones);
+
+
+
+                    listView.setAdapter(customAdapter);
+                    customAdapter.notifyDataSetChanged();
+
+                } else{
+
+                    customAdapter.notifyDataSetChanged();
+
+                }
+
+
+            }
+
+            @Override
+            public void onFailure(Call<mutualContactsres> call, Throwable t) {
+                System.out.println("Response FAILED" +t.getMessage());
+
+            }
+        });
+    }
+
     MyContentObserver contentObserver;
 
     @Override
@@ -100,7 +202,30 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-        Log.d(">>Tag >>", "session id" + sessionId);
+        username = getIntent().getStringExtra("username");
+
+        Log.d(">>Tag >>", "username phonenumber" + username);
+
+        Map<String, Object> loginDetails = new HashMap<>();
+        loginDetails.put("phoneNumber", username);
+        loginDetails.put("username", username);
+
+        db.collection("loginDetails").document(username).set(loginDetails, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
+
+            @Override
+            public void onSuccess(Void aVoid) {
+                Log.d(">> Firestore Insert", "Login Details DocumentSnapshot successfully written!");
+            }
+        })
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Log.w(">> Firestore Insert", "Error writing document", e);
+                    }
+                });
+
+
+
         myRef = database.getReference();
 
         db.setFirestoreSettings(settings);
@@ -126,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
                 // Getting Post failed, log a message
-                Log.w(">> TAG >>>", "loadPost:onCancelled", databaseError.toException());
+//                Log.w(">> TAG >>>", "loadPost:onCancelled", databaseError.toException());
             }
         };
         myRef.addValueEventListener(postListener);
@@ -240,14 +365,14 @@ public class MainActivity extends AppCompatActivity {
 //            phones.close();
 
               getClubbedContacts();
-            customAdapter = new CustomAdapter(this, contactModelArrayList);
-            listView.setAdapter(customAdapter);
-            printOutput();
 
+
+//            
+//            printOutput();
+
+            }
         }
     }
-    }
-
 
 
 
@@ -267,23 +392,32 @@ public class MainActivity extends AppCompatActivity {
             final String FIND_EMAILS_FOR_ID = "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" +
                     contact_id + ")";
 
-
             Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id);
             Cursor getAllNums = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, FIND_pHONES_FOR_ID, null, null);
 
-            ArrayList<String> PhoneNums = new ArrayList<String>();
-            ArrayList<String> EmailList = new ArrayList<String>();
+
+//            List<String> PhoneNums = new ArrayList<String>();
+//            List<String> EmailList = new ArrayList<String>();
+//            List test1 = new ArrayList(Arrays.asList());
+
 
             String displayNumber = "";
+            String stringPhoneWords = "";
+            String stringEmailWords = "";
+
+
             while(getAllNums.moveToNext()){
 
                 String phoneNumber = getAllNums.getString(getAllNums.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                 Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id + " //"+ phoneNumber);
-                PhoneNums.add(phoneNumber);
+//                phoneStringArray.add(phoneNumber);
+                allPhoneNumbers.add(phoneNumber);
+//                test1.add((phoneNumber));
                 displayNumber = displayNumber + phoneNumber + " \n ";
-
+                stringPhoneWords = stringPhoneWords + phPurifier(phoneNumber) + ", ";
             }
             getAllNums.close();
+
 
             Cursor getAllEmails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, FIND_EMAILS_FOR_ID, null, null);
 
@@ -292,13 +426,18 @@ public class MainActivity extends AppCompatActivity {
 
                 String EmailADdresses = getAllEmails.getString(getAllEmails.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
                 Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id + " //"+ EmailADdresses);
-                EmailList.add(EmailADdresses);
+//                EmailList.add(EmailADdresses);
 //                displayNumber = displayNumber + phoneNumber + " \n ";
+                stringEmailWords = stringEmailWords + EmailADdresses.replace(" ","").replace("-","") + ", ";
+
 
             }
 
-            Log.d(">>Tag>>", name + "// NewTest //" + contact_id + "// Phonenums finally" + PhoneNums+ "// Phonenums finally" + PhoneNums);
+//            Log.d(">>Tag>>", name + "// NewTest //" + contact_id + "// Phonenums finally" + PhoneNums+ "// Phonenums finally" + PhoneNums);
             getAllEmails.close();
+
+            String[] phoneStringArray = stringPhoneWords.split(",");
+            String[] emailStringArray = stringEmailWords.split(",");
 
 
 
@@ -306,16 +445,27 @@ public class MainActivity extends AppCompatActivity {
             contactModel.setId(contact_id);
             contactModel.setName(name);
             contactModel.setNumber(displayNumber);
-            contactModel.setPhoneArray(PhoneNums);
+            contactModel.setPhoneArray((phoneStringArray));
+            contactModel.setEmailArray((emailStringArray));
 
-            contactModel.setEmailArray(EmailList);
+//            contactModel.setEmailArray(EmailList);
 
 
+
+            Map<String, Object> data4 = new HashMap<>();
+            data4.put("name", name);
+            data4.put("id", contact_id);
+
+            data4.put("emails",Arrays.asList(emailStringArray));
+
+
+            data4.put("phN",  Arrays.asList(phoneStringArray));
+
+//            contactModelArrayList.add({"phone" : Arrays.asList(phoneStringArray)});
             contactModelArrayList.add(contactModel);
 
 
-
-            db.collection("todayTesting2").document(contact_id).set(contactModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+            db.collection(username).document(contact_id).set(data4, SetOptions.merge()).addOnSuccessListener(new OnSuccessListener<Void>() {
 
                 @Override
                 public void onSuccess(Void aVoid) {
@@ -334,6 +484,13 @@ public class MainActivity extends AppCompatActivity {
 
 
         contactCursor.close();
+
+        getAllMatchingContacts(username);
+
+        Log.i(">> TAG >>",mutualPhones +  " mPhones");
+
+
+
 
 
 
@@ -357,91 +514,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private void testCustomFunc() {
-        Log.d("TCF", "testCustomFunc: INIt");
 
-        final String WHERE_MODIFIED = "( " + ContactsContract.RawContacts.DELETED + "=1 OR " +
-                ContactsContract.RawContacts.DIRTY + "=1 )";
+    private void getMutualContacts(){}
 
-        Cursor c = getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI,
-                null,
-                WHERE_MODIFIED,
-                null,
-                null);
-        Log.d("?? TCF >>", "testCustomFunc:  COUNT " + c.getCount());
-        WriteBatch batch = db.batch();
-
-        while (c.moveToNext()) {
-//                String name=c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-            String name = c.getString(c.getColumnIndex(ContactsContract.RawContacts.DISPLAY_NAME_PRIMARY));
-            String deleteID = c.getString(c.getColumnIndex(ContactsContract.RawContacts._ID));
-
-            String dirtyCheck = c.getString(c.getColumnIndex(ContactsContract.RawContacts.DIRTY));
-            String deleteCheck = c.getString(c.getColumnIndex(ContactsContract.RawContacts.DELETED));
-
-//            Uri lookup = c.getString(c.getColumnIndex(ContactsContract.Data.getContactLookupUri().get));
-
-            if (deleteCheck == "1") {
-                db.collection("testPhoneBook").document(deleteID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        Log.d(">> Firestore DELETE", "DocumentSnapshot DELETED written!");
-                    }
-                })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(">> Firestore Insert", "Error writing document", e);
-                            }
-                        });
-
-
-            } else if (dirtyCheck == "1") {
-                Cursor updateCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-                        null,
-                        "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" + deleteID + ")",
-                        null,
-                        null);
-                String number = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//                String email = c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
-                ContactModel updateModel = new ContactModel();
-                updateModel.setName(name);
-                updateModel.setId(deleteID);
-//                updateModel.setNumber(number);
-//                updateModel.setEmail(email);
-
-                db.collection("testPhoneBook").document(deleteID).set(updateModel);
-//                db.collection("testPhoneBook").document(deleteID).update("number",number);
-//                db.collection("testPhoneBook").document(deleteID).update("id",deleteID);
-//                db.collection("testPhoneBook").document(deleteID).update("email",email);
-//
-
-
-
-            }
-
-       //                contactModel.setNumber(phoneNumber);
-//                contactModelArrayList.(setNumbercontactModel);
-            Log.d("name >>", "TEST CUSTOM FUNC -> NAME//id" + name + "  " + deleteID + "///"  );
-
-        }
-        c.close();
-
-        batch.commit().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-
-                            Log.d("TAG", "TASK DONE" + task.getResult());
-
-                            printOutput();
-                        } else {
-                            Log.d("Error Tag", "BATCH ERROR : ", task.getException());
-                        }            }
-        });
-
-        Log.d("TCF", "testCustomFunc: END");
+    private String phPurifier(String unPurifiedPhoneNumber ) {
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace(" ","");
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace("-","");
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace("(","");
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace(")","");
+        return unPurifiedPhoneNumber;
     }
+
 
 
     @Override

@@ -1,15 +1,17 @@
 package com.goodhealth.contacts;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
-import com.goodhealth.contacts.MainActivity;
-
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by Parsania Hardik on 11-May-17.
@@ -18,11 +20,12 @@ public class CustomAdapter extends BaseAdapter {
 
     private Context context;
     private ArrayList<ContactModel> contactModelArrayList;
-
-    public CustomAdapter(Context context, ArrayList<ContactModel> contactModelArrayList) {
+    private ArrayList<String> mutualPhones;
+    public CustomAdapter(Context context, ArrayList<ContactModel> contactModelArrayList,  ArrayList<String> mutualPhones) {
 
         this.context = context;
         this.contactModelArrayList = contactModelArrayList;
+        this.mutualPhones = mutualPhones;
     }
 
     @Override
@@ -63,6 +66,9 @@ public class CustomAdapter extends BaseAdapter {
             holder.tvname = (TextView) convertView.findViewById(R.id.name);
             holder.tvnumber = (TextView) convertView.findViewById(R.id.number);
 
+//            tvnumber = (TextView) convertView.findViewById(R.id.phoneArray);
+
+
             convertView.setTag(holder);
         }else {
             // the getTag returns the viewHolder object set as a tag to the view
@@ -72,7 +78,43 @@ public class CustomAdapter extends BaseAdapter {
         holder.tvname.setText(contactModelArrayList.get(position).getName());
         holder.tvnumber.setText(contactModelArrayList.get(position).getNumber());
 
+        Log.i(">> Tag >>", "Mutual Phones Length " +  mutualPhones.size() );
+
+        if(findCommonElements(contactModelArrayList.get(position).getPhoneArray(), mutualPhones)) {
+            holder.tvnumber.setTextColor(Color.parseColor("#0000FF"));
+        }
         return convertView;
+    }
+
+    public static boolean findCommonElements(String[] arr1,
+                                             ArrayList<String> arr2)
+    {
+
+        System.out.println(arr2);
+        // create hashsets
+        Set<String> set1 = new HashSet<>();
+        Set<String> set2 = new HashSet<>();
+
+        // Adding elements from array1
+        for (String i : arr1) {
+            set1.add(i);
+        }
+
+        // Adding elements from array2
+        for (String i : arr2) {
+            set2.add(i);
+        }
+
+        // use retainAll() method to
+        // find common elements
+        set1.retainAll(set2);
+        System.out.println("Common elements- " + set1);
+
+        if (set1.toArray().length > 0) {
+            return true;
+        } else{
+            return false;
+        }
     }
 
     private class ViewHolder {
@@ -80,4 +122,7 @@ public class CustomAdapter extends BaseAdapter {
         protected TextView tvname, tvnumber;
 
     }
+
+
+
 }

@@ -1,24 +1,47 @@
 package com.goodhealth.contacts;
 
-import java.util.ArrayList;
+import android.util.Log;
+
+import java.util.List;
 
 public class ContactModel {
 
+    private static final String TAG = "ContactModel";
     private String name, number, id, email;
 
-    private ArrayList<String> PhoneArray = new ArrayList<String>();
-    private ArrayList<String> EmailArray = new ArrayList<String>();
+    String[] EmailArray;
+    String[]  PhoneArray;
 
-    public void setPhoneArray(ArrayList<String> phoneArray) {
-        PhoneArray = phoneArray;
+    private String color;
+
+
+    public void setPhoneArray(String[] phoneArray) {
+        Log.d(TAG, "setPhoneArray" + phoneArray);
+            PhoneArray = phoneArray;
     }
 
-    public void setEmailArray(ArrayList<String> emailArray) {
-        EmailArray = emailArray;
+    public String getColor() {
+        return color;
+    }
+
+    public void setColor(String color) {
+        this.color = color;
+    }
+
+    public void setEmailArray(String[] emailArray) {
+            EmailArray = emailArray;
     }
 
     public String getName() {
         return name;
+    }
+
+    public String[] getEmailArray() {
+        return EmailArray;
+    }
+
+    public String[] getPhoneArray() {
+        return PhoneArray;
     }
 
     public void setName(String name) {
