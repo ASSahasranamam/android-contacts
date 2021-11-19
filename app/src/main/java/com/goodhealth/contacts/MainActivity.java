@@ -121,31 +121,31 @@ public class MainActivity extends AppCompatActivity {
                 if (customAdapter == null) {
                     customAdapter = new CustomAdapter(MainActivity.this, contactModelArrayList, mutualPhones);
 
-                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                    alertDialog.setTitle("Alert");
-                    alertDialog.setMessage("This is in getMutualContacts" + mutualPhones + mutualPhones.size());
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
+//                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+//                    alertDialog.setTitle("Alert");
+//                    alertDialog.setMessage("This is in getMutualContacts" + mutualPhones + mutualPhones.size());
+//                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                    alertDialog.show();
 
                     listView.setAdapter(customAdapter);
                     customAdapter.notifyDataSetChanged();
 
                 } else {
-                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
-                    alertDialog.setTitle("Alert");
-                    alertDialog.setMessage("This is in ELSE /// getMutualContacts" + mutualPhones + mutualPhones.size());
-                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
+//                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+//                    alertDialog.setTitle("Alert");
+//                    alertDialog.setMessage("This is in ELSE /// getMutualContacts" + mutualPhones + mutualPhones.size());
+//                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
+//                            new DialogInterface.OnClickListener() {
+//                                public void onClick(DialogInterface dialog, int which) {
+//                                    dialog.dismiss();
+//                                }
+//                            });
+//                    alertDialog.show();
 
                     customAdapter.notifyDataSetChanged();
 
