@@ -13,10 +13,6 @@ public class mutualContactsres implements Serializable {
     private ArrayList<String> mutualDocs;
 
     public ArrayList<String> getMutualDocs() {
-
-
-
-
         return mutualDocs;
     }
 

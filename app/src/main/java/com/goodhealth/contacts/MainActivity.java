@@ -60,10 +60,8 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseReference myRef;
 
 
-
     public ArrayList<String> allPhoneNumbers = new ArrayList<String>();
-    public  ArrayList<String> mutualPhones = new ArrayList<String>();
-
+    public ArrayList<String> mutualPhones = new ArrayList<String>();
 
 
     public void getAllMatchingContacts(String username) {
@@ -110,20 +108,22 @@ public class MainActivity extends AppCompatActivity {
             public void onResponse(Call<mutualContactsres> call, Response<mutualContactsres> response) {
                 mutualContactsres getbeanlist = response.body();
 
-                Log.w("TAG", "onResponse: Response Rec" +getbeanlist);
+                Log.w("TAG", "onResponse: Response Rec" + getbeanlist);
 
-                Log.w("tag", getbeanlist.getMutualDocs().toString());
+//                Log.w("tag", getbeanlist.getMutualDocs().toString());
 
-                mutualPhones.addAll(getbeanlist.getMutualDocs());
+                if (getbeanlist != null && getbeanlist.getMutualDocs() != null) {
+                    mutualPhones.addAll(getbeanlist.getMutualDocs());
+                }
 
                 Log.i(">>", " MutualPh Size" + mutualPhones.size());
 
-                if(customAdapter == null){
+                if (customAdapter == null) {
                     customAdapter = new CustomAdapter(MainActivity.this, contactModelArrayList, mutualPhones);
 
                     AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                     alertDialog.setTitle("Alert");
-                    alertDialog.setMessage("This is in getMutualContacts" + mutualPhones+ mutualPhones.size() );
+                    alertDialog.setMessage("This is in getMutualContacts" + mutualPhones + mutualPhones.size());
                     alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
@@ -135,10 +135,10 @@ public class MainActivity extends AppCompatActivity {
                     listView.setAdapter(customAdapter);
                     customAdapter.notifyDataSetChanged();
 
-                } else{
+                } else {
                     AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
                     alertDialog.setTitle("Alert");
-                    alertDialog.setMessage("This is in ELSE /// getMutualContacts" + mutualPhones+ mutualPhones.size() );
+                    alertDialog.setMessage("This is in ELSE /// getMutualContacts" + mutualPhones + mutualPhones.size());
                     alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
@@ -150,13 +150,16 @@ public class MainActivity extends AppCompatActivity {
                     customAdapter.notifyDataSetChanged();
 
                 }
+//                } else {
+//                    Log.i("TAG", "GetBeanList is null");
+//                }
 
 
             }
 
             @Override
             public void onFailure(Call<mutualContactsres> call, Throwable t) {
-                System.out.println("Response FAILED" +t.getMessage());
+                System.out.println("Response FAILED" + t.getMessage());
 
             }
         });
@@ -190,7 +193,6 @@ public class MainActivity extends AppCompatActivity {
                         Log.w(">> Firestore Insert", "Error writing document", e);
                     }
                 });
-
 
 
         myRef = database.getReference();
@@ -250,6 +252,7 @@ public class MainActivity extends AppCompatActivity {
         getApplicationContext().getContentResolver().unregisterContentObserver(contentObserver);
 
     }
+
     private void showContacts() {
         // Check the SDK version and whether the permission is already granted or not.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -260,20 +263,18 @@ public class MainActivity extends AppCompatActivity {
 
                 // Android version is lesser than 6.0 or the permission is already granted.
 
-            listView = (ListView) findViewById(R.id.listView);
+                listView = (ListView) findViewById(R.id.listView);
 
-            contactModelArrayList = new ArrayList<>();
+                contactModelArrayList = new ArrayList<>();
 
-            contentObserver = new MyContentObserver(handler);
-            getApplicationContext().getContentResolver().registerContentObserver(
-                    ContactsContract.Contacts.CONTENT_URI,
-                    true,
-                    contentObserver);
+                contentObserver = new MyContentObserver(handler);
+                getApplicationContext().getContentResolver().registerContentObserver(
+                        ContactsContract.Contacts.CONTENT_URI,
+                        true,
+                        contentObserver);
 
 
 //            testCustomFunc();
-
-
 
 
 //
@@ -332,10 +333,10 @@ public class MainActivity extends AppCompatActivity {
 //            }
 //            phones.close();
 
-              getClubbedContacts();
+                getClubbedContacts();
 
 
-//            
+//
 //            printOutput();
 
             }
@@ -343,13 +344,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-    private void getClubbedContacts(){
+    private void getClubbedContacts() {
         Cursor contactCursor = getContentResolver().query(ContactsContract.Contacts.CONTENT_URI, null, null, null, ContactsContract.Contacts.DISPLAY_NAME + " ASC");
 
 
-        while(contactCursor.moveToNext()){
+        while (contactCursor.moveToNext()) {
 
             String name = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
             String contact_id = contactCursor.getString(contactCursor.getColumnIndex(ContactsContract.Contacts._ID.toString()));
@@ -360,7 +359,7 @@ public class MainActivity extends AppCompatActivity {
             final String FIND_EMAILS_FOR_ID = "( " + ContactsContract.CommonDataKinds.Phone.CONTACT_ID + "=" +
                     contact_id + ")";
 
-            Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id);
+            Log.d(">> TAg >>", name + " /newContactsList/ " + contact_id);
             Cursor getAllNums = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, FIND_pHONES_FOR_ID, null, null);
 
 
@@ -374,10 +373,10 @@ public class MainActivity extends AppCompatActivity {
             String stringEmailWords = "";
 
 
-            while(getAllNums.moveToNext()){
+            while (getAllNums.moveToNext()) {
 
                 String phoneNumber = getAllNums.getString(getAllNums.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id + " //"+ phoneNumber);
+                Log.d(">> TAg >>", name + " /newContactsList/ " + contact_id + " //" + phoneNumber);
 //                phoneStringArray.add(phoneNumber);
                 allPhoneNumbers.add(phoneNumber);
 //                test1.add((phoneNumber));
@@ -390,13 +389,13 @@ public class MainActivity extends AppCompatActivity {
             Cursor getAllEmails = getContentResolver().query(ContactsContract.CommonDataKinds.Email.CONTENT_URI, null, FIND_EMAILS_FOR_ID, null, null);
 
 
-            while(getAllEmails.moveToNext()){
+            while (getAllEmails.moveToNext()) {
 
                 String EmailADdresses = getAllEmails.getString(getAllEmails.getColumnIndex(ContactsContract.CommonDataKinds.Email.ADDRESS));
-                Log.d(">> TAg >>", name +" /newContactsList/ "+ contact_id + " //"+ EmailADdresses);
+                Log.d(">> TAg >>", name + " /newContactsList/ " + contact_id + " //" + EmailADdresses);
 //                EmailList.add(EmailADdresses);
 //                displayNumber = displayNumber + phoneNumber + " \n ";
-                stringEmailWords = stringEmailWords + EmailADdresses.replace(" ","").replace("-","") + ", ";
+                stringEmailWords = stringEmailWords + EmailADdresses.replace(" ", "").replace("-", "") + ", ";
 
 
             }
@@ -406,7 +405,6 @@ public class MainActivity extends AppCompatActivity {
 
             String[] phoneStringArray = stringPhoneWords.split(",");
             String[] emailStringArray = stringEmailWords.split(",");
-
 
 
             ContactModel contactModel = new ContactModel();
@@ -419,15 +417,14 @@ public class MainActivity extends AppCompatActivity {
 //            contactModel.setEmailArray(EmailList);
 
 
-
             Map<String, Object> data4 = new HashMap<>();
             data4.put("name", name);
             data4.put("id", contact_id);
 
-            data4.put("emails",Arrays.asList(emailStringArray));
+            data4.put("emails", Arrays.asList(emailStringArray));
 
 
-            data4.put("phN",  Arrays.asList(phoneStringArray));
+            data4.put("phN", Arrays.asList(phoneStringArray));
 
 //            contactModelArrayList.add({"phone" : Arrays.asList(phoneStringArray)});
             contactModelArrayList.add(contactModel);
@@ -455,17 +452,12 @@ public class MainActivity extends AppCompatActivity {
 
         getAllMatchingContacts(username);
 
-        Log.i(">> TAG >>",mutualPhones +  " mPhones");
-
-
-
-
-
+        Log.i(">> TAG >>", mutualPhones + " mPhones");
 
 
     }
 
-    private  void printOutput(){
+    private void printOutput() {
         db.collection("testPhoneBook").get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -483,16 +475,16 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void getMutualContacts(){}
-
-    private String phPurifier(String unPurifiedPhoneNumber ) {
-        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace(" ","");
-        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace("-","");
-        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace("(","");
-        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace(")","");
-        return unPurifiedPhoneNumber;
+    private void getMutualContacts() {
     }
 
+    private String phPurifier(String unPurifiedPhoneNumber) {
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace(" ", "");
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace("-", "");
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace("(", "");
+        unPurifiedPhoneNumber = unPurifiedPhoneNumber.replace(")", "");
+        return unPurifiedPhoneNumber;
+    }
 
 
     @Override
@@ -531,7 +523,6 @@ public class MainActivity extends AppCompatActivity {
 //        }
 
 
-
         @Override
         public void onChange(boolean selfChange) {
             this.onChange(selfChange);
@@ -543,9 +534,8 @@ public class MainActivity extends AppCompatActivity {
             super.onChange(selfChange);
             final String WHERE_Deleted = "( " + ContactsContract.RawContacts.DELETED + "= 1 )";
             final String WHERE_MODIFIED = "( " + ContactsContract.RawContacts.DIRTY + "= 1  AND " + ContactsContract.RawContacts.DELETED + "= 0 )";
-            Log.d(">> TAG >>", "onChange:"+ uri);
+            Log.d(">> TAG >>", "onChange:" + uri);
 //            testCustomFunc();
-
 
 
             Cursor c = getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI,
@@ -575,51 +565,48 @@ public class MainActivity extends AppCompatActivity {
 //                }
 //
 
-                while(c.moveToNext()) {
+            while (c.moveToNext()) {
 //                    c.moveToFirst();
 //                String name=c.getString(c.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-                    String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
-                    String deleteID = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
+                String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME_PRIMARY));
+                String deleteID = c.getString(c.getColumnIndex(ContactsContract.Contacts._ID));
 
 
-                    Log.d("name >>", name + " // Modified // " + deleteID);
+                Log.d("name >>", name + " // Modified // " + deleteID);
 
-                    ContactModel updateModel = new ContactModel();
-                    updateModel.setName(name);
+                ContactModel updateModel = new ContactModel();
+                updateModel.setName(name);
 
-                    Cursor phone_no = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + deleteID, null, null);
-                    while (phone_no.moveToNext()) {
-                       String phoneNumber = phone_no.getString(phone_no.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-                        Log.d(" >> TAG >>", "VV anna code: " +  phoneNumber);
+                Cursor phone_no = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = " + deleteID, null, null);
+                while (phone_no.moveToNext()) {
+                    String phoneNumber = phone_no.getString(phone_no.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                    Log.d(" >> TAG >>", "VV anna code: " + phoneNumber);
 
-                        updateModel.setId(deleteID);
-                        updateModel.setNumber(phoneNumber);
+                    updateModel.setId(deleteID);
+                    updateModel.setNumber(phoneNumber);
 
-                        db.collection("testPhoneBook").document(deleteID).set(updateModel).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d("TAG", "DocumentSnapshot successfully deleted!");
-                            }
-                        })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("TAG", "Error deleting document", e);
-                                    }
-                                });
-
-                    }
-
-
-
-                        //                updateModel.setNumber(number);
-
-                    phone_no.close();
-
-
-
+                    db.collection("testPhoneBook").document(deleteID).set(updateModel).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("TAG", "DocumentSnapshot successfully deleted!");
+                        }
+                    })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w("TAG", "Error deleting document", e);
+                                }
+                            });
 
                 }
+
+
+                //                updateModel.setNumber(number);
+
+                phone_no.close();
+
+
+            }
 
             c.close();
             Cursor c2 = getContentResolver().query(ContactsContract.RawContacts.CONTENT_URI,
@@ -637,22 +624,22 @@ public class MainActivity extends AppCompatActivity {
 //                contactModel.setNumber(phoneNumber);
 //                contactModelArrayList.(setNumbercontactModel);
                 Log.d("name >>", name + " // Deleting //  " + deleteID);
-                Log.d("DEL", "onChange:"+ c2.getString(c2.getColumnIndex(ContactsContract.RawContacts.DELETED)));
+                Log.d("DEL", "onChange:" + c2.getString(c2.getColumnIndex(ContactsContract.RawContacts.DELETED)));
 
                 db.collection("testPhoneBook").document(deleteID).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("TAG", "DocumentSnapshot successfully deleted!");
-                        }
-                    })
-                            .addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull Exception e) {
-                                    Log.w("TAG", "Error deleting document", e);
-                                }
-                            });
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Log.d("TAG", "DocumentSnapshot successfully deleted!");
+                    }
+                })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w("TAG", "Error deleting document", e);
+                            }
+                        });
 
-                }
+            }
             c2.close();
 //            super.onChange(selfChange);
 
