@@ -136,6 +136,16 @@ public class MainActivity extends AppCompatActivity {
                     customAdapter.notifyDataSetChanged();
 
                 } else{
+                    AlertDialog alertDialog = new AlertDialog.Builder(MainActivity.this).create();
+                    alertDialog.setTitle("Alert");
+                    alertDialog.setMessage("This is in ELSE /// getMutualContacts" + mutualPhones+ mutualPhones.size() );
+                    alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "OK",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    dialog.dismiss();
+                                }
+                            });
+                    alertDialog.show();
 
                     customAdapter.notifyDataSetChanged();
 
