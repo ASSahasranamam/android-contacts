@@ -237,10 +237,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getApplicationContext().getContentResolver().registerContentObserver(
-                ContactsContract.Contacts.CONTENT_URI,
-                true,
-                contentObserver);
+//        getApplicationContext().getContentResolver().registerContentObserver(
+//                ContactsContract.Contacts.CONTENT_URI,
+//                true,
+//                contentObserver);
+
     }
 
     @Override
